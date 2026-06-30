@@ -1,0 +1,1 @@
+解释流程：source 输入进入项目目录，页面以 SVG 形式生成；质量检查确保 SVG 对 PPT 兼容；导出阶段转换为原生 DrawingML PPTX。

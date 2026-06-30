@@ -1,0 +1,1 @@
+开场说明：这是基于 hugohe3/ppt-master 封装后的 Hermes Skill 冒烟测试。重点展示动态 GIF 主视觉、深色科技风视觉系统，以及 PPTX 可编辑导出能力。

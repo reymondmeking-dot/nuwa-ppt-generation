@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#050816"/><stop offset="100%" stop-color="#101A3F"/></linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur"/><feFlood flood-color="#00E5FF" flood-opacity="0.35" result="c"/><feComposite in="c" in2="blur" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <g id="background">
+    <rect width="1280" height="720" fill="url(#bg)"/>
+    <circle cx="1040" cy="180" r="280" fill="#7C3AED" fill-opacity="0.15"/>
+  </g>
+  <g id="title" filter="url(#glow)">
+    <text x="88" y="172" font-family="Microsoft YaHei, Arial, sans-serif" font-size="64" font-weight="700" fill="#EAF2FF">Quick Mode 测试通过</text>
+    <text x="92" y="230" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" fill="#8DA2C0">验证 skill 补丁：快速模式 + GIF 必须 --no-image-optimize</text>
+  </g>
+  <g id="hero-image">
+    <rect x="690" y="140" width="458" height="306" rx="32" fill="#101A3F" stroke="#20325F"/>
+    <image href="../images/quick_dynamic.gif" x="714" y="164" width="410" height="230" preserveAspectRatio="xMidYMid slice"/>
+    <text x="920" y="426" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" fill="#8DA2C0">ppt/media/*.gif 验证目标</text>
+  </g>
+  <g id="cards">
+    <rect x="90" y="376" width="220" height="116" rx="24" fill="#101A3F" stroke="#20325F"/>
+    <text x="122" y="428" font-family="Microsoft YaHei, Arial, sans-serif" font-size="36" font-weight="700" fill="#00E5FF">1页</text>
+    <text x="122" y="460" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" fill="#8DA2C0">快速样片</text>
+    <rect x="338" y="376" width="250" height="116" rx="24" fill="#101A3F" stroke="#20325F"/>
+    <text x="370" y="428" font-family="Microsoft YaHei, Arial, sans-serif" font-size="36" font-weight="700" fill="#FF2E88">GIF</text>
+    <text x="370" y="460" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" fill="#8DA2C0">动态图片保留</text>
+  </g>
+  <g id="footer"><text x="90" y="650" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" fill="#8DA2C0">Generated after patching ppt-master skill</text></g>
+</svg>

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#050816"/><stop offset="100%" stop-color="#0B1026"/></linearGradient>
+    <linearGradient id="okGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00E5FF"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="135%" height="135%"><feGaussianBlur in="SourceAlpha" stdDeviation="9"/><feOffset dx="0" dy="6" result="offsetBlur"/><feFlood flood-color="#000000" flood-opacity="0.18" result="shadowColor"/><feComposite in="shadowColor" in2="offsetBlur" operator="in" result="shadow"/><feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <g id="background"><rect width="1280" height="720" fill="url(#bg)"/><circle cx="1050" cy="150" r="260" fill="#00E5FF" fill-opacity="0.06"/><circle cx="180" cy="610" r="240" fill="#FF2E88" fill-opacity="0.05"/></g>
+  <g id="title">
+    <text x="80" y="94" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" letter-spacing="3" fill="#00E5FF">QUALITY GATES</text>
+    <text x="80" y="148" font-family="Microsoft YaHei, Arial, sans-serif" font-size="44" font-weight="700" fill="#EAF2FF">导出验证不是“看起来像”，而是实际跑通</text>
+    <text x="80" y="186" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" fill="#8DA2C0">质量链路会检查 XML、画布、禁用特性、分组和媒体打包。</text>
+  </g>
+  <g id="quality-card-1" filter="url(#shadow)">
+    <rect x="82" y="250" width="254" height="262" rx="28" fill="#101A3F" stroke="#20325F"/>
+    <circle cx="128" cy="302" r="24" fill="#00E5FF" fill-opacity="0.16" stroke="#00E5FF"/>
+    <path d="M116 303 L126 313 L143 291" fill="none" stroke="#EAF2FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="112" y="358" font-family="Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="700" fill="#EAF2FF">SVG 结构检查</text>
+    <text x="112" y="397" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" fill="#8DA2C0">viewBox / XML / banned features</text>
+    <rect x="112" y="438" width="172" height="10" rx="5" fill="#20325F"/><rect x="112" y="438" width="154" height="10" rx="5" fill="#00E5FF"/>
+  </g>
+  <g id="quality-card-2" filter="url(#shadow)">
+    <rect x="374" y="250" width="254" height="262" rx="28" fill="#101A3F" stroke="#20325F"/>
+    <circle cx="420" cy="302" r="24" fill="#7C3AED" fill-opacity="0.22" stroke="#7C3AED"/>
+    <path d="M408 303 L418 313 L435 291" fill="none" stroke="#EAF2FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="404" y="358" font-family="Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="700" fill="#EAF2FF">后处理</text>
+    <text x="404" y="397" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" fill="#8DA2C0">image embed / text flatten / notes</text>
+    <rect x="404" y="438" width="172" height="10" rx="5" fill="#20325F"/><rect x="404" y="438" width="132" height="10" rx="5" fill="#7C3AED"/>
+  </g>
+  <g id="quality-card-3" filter="url(#shadow)">
+    <rect x="666" y="250" width="254" height="262" rx="28" fill="#101A3F" stroke="#20325F"/>
+    <circle cx="712" cy="302" r="24" fill="#FF2E88" fill-opacity="0.20" stroke="#FF2E88"/>
+    <path d="M700 303 L710 313 L727 291" fill="none" stroke="#EAF2FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="696" y="358" font-family="Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="700" fill="#EAF2FF">PPTX 打包</text>
+    <text x="696" y="397" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" fill="#8DA2C0">slides / media / animations</text>
+    <rect x="696" y="438" width="172" height="10" rx="5" fill="#20325F"/><rect x="696" y="438" width="146" height="10" rx="5" fill="#FF2E88"/>
+  </g>
+  <g id="quality-card-4" filter="url(#shadow)">
+    <rect x="958" y="250" width="240" height="262" rx="28" fill="#101A3F" stroke="#20325F"/>
+    <circle cx="1004" cy="302" r="24" fill="#00E5FF" fill-opacity="0.16" stroke="#00E5FF"/>
+    <text x="1004" y="313" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" font-weight="700" fill="#EAF2FF">✓</text>
+    <text x="988" y="358" font-family="Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="700" fill="#EAF2FF">可编辑验证</text>
+    <text x="988" y="397" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" fill="#8DA2C0">native DrawingML shapes</text>
+    <rect x="988" y="438" width="160" height="10" rx="5" fill="#20325F"/><rect x="988" y="438" width="134" height="10" rx="5" fill="url(#okGrad)"/>
+  </g>
+  <g id="console-strip">
+    <rect x="80" y="558" width="1118" height="68" rx="20" fill="#050816" stroke="#20325F"/>
+    <circle cx="116" cy="592" r="6" fill="#FF2E88"/><circle cx="138" cy="592" r="6" fill="#FBBF24"/><circle cx="160" cy="592" r="6" fill="#00E5FF"/>
+    <text x="192" y="599" font-family="Consolas, Arial, sans-serif" font-size="17" fill="#8DA2C0">svg_quality_checker.py → total_md_split.py → finalize_svg.py → svg_to_pptx.py -a auto -t push</text>
+  </g>
+  <g id="footer"><text x="80" y="660" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" fill="#8DA2C0">所有命令均在本机真实执行，并以工具输出为准。</text><text x="1200" y="660" text-anchor="end" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" fill="#8DA2C0">04 / 05</text></g>
+</svg>

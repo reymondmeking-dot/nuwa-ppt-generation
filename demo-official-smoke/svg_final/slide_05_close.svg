@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#050816" /><stop offset="100%" stop-color="#0B1026" /></linearGradient>
+    <linearGradient id="cta" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00E5FF" /><stop offset="50%" stop-color="#7C3AED" /><stop offset="100%" stop-color="#FF2E88" /></linearGradient>
+    <radialGradient id="spot" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="#7C3AED" stop-opacity="0.28" /><stop offset="100%" stop-color="#050816" stop-opacity="0" /></radialGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur" /><feFlood flood-color="#00E5FF" flood-opacity="0.40" result="glowColor" /><feComposite in="glowColor" in2="blur" operator="in" result="glow" /><feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+  </defs>
+  <g id="background">
+    <rect width="1280" height="720" fill="url(#bg)" />
+    <circle cx="640" cy="340" r="430" fill="url(#spot)" />
+    <path d="M110 180 C300 90 500 226 690 150 C888 72 1010 154 1170 98" fill="none" stroke="#00E5FF" stroke-width="1.4" stroke-opacity="0.30" />
+    <path d="M90 574 C310 466 448 612 664 534 C828 474 1038 530 1190 452" fill="none" stroke="#FF2E88" stroke-width="1.2" stroke-opacity="0.25" />
+  </g>
+  <g id="closing-title" filter="url(#glow)">
+    <text x="640" y="190" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" letter-spacing="4" fill="#00E5FF">RESULT READY</text>
+    <text x="640" y="285" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="76" font-weight="700" fill="#EAF2FF">ppt-master 已封装为 Skill</text>
+    <text x="640" y="344" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="30" fill="#8DA2C0">并生成包含动态图片与动画的 PPTX 测试文件</text>
+  </g>
+  <g id="result-cards">
+    <path fill="#101A3F" stroke="#20325F" d="M216,420 H420 A28,28 0 0 1 448,448 V508 A28,28 0 0 1 420,536 H216 A28,28 0 0 1 188,508 V448 A28,28 0 0 1 216,420 Z" />
+    <text x="318" y="466" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" fill="#8DA2C0">Skill Path</text>
+    <text x="318" y="505" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="700" fill="#00E5FF">ppt-master</text>
+    <path fill="#101A3F" stroke="#20325F" d="M538,420 H742 A28,28 0 0 1 770,448 V508 A28,28 0 0 1 742,536 H538 A28,28 0 0 1 510,508 V448 A28,28 0 0 1 538,420 Z" />
+    <text x="640" y="466" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" fill="#8DA2C0">Output</text>
+    <text x="640" y="505" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="700" fill="#7C3AED">exports/*.pptx</text>
+    <path fill="#101A3F" stroke="#20325F" d="M860,420 H1064 A28,28 0 0 1 1092,448 V508 A28,28 0 0 1 1064,536 H860 A28,28 0 0 1 832,508 V448 A28,28 0 0 1 860,420 Z" />
+    <text x="962" y="466" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" fill="#8DA2C0">Motion</text>
+    <text x="962" y="505" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="700" fill="#FF2E88">GIF + OOXML</text>
+  </g>
+  <g id="cta-bar">
+    <path fill="url(#cta)" d="M354,586 H926 A28,28 0 0 1 954,614 V614 A28,28 0 0 1 926,642 H354 A28,28 0 0 1 326,614 V614 A28,28 0 0 1 354,586 Z" />
+    <text x="640" y="622" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="700" fill="#050816">可复用命令：hermes skills view ppt-master</text>
+  </g>
+  <g id="footer"><text x="1200" y="670" text-anchor="end" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" fill="#8DA2C0">05 / 05</text></g>
+</svg>

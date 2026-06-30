@@ -1,0 +1,2 @@
+skills/productivity/ppt-master/references/ai-image-comparison/**/*.png filter=lfs diff=lfs merge=lfs -text
+skills/productivity/ppt-master/templates/**/*.pptx filter=lfs diff=lfs merge=lfs -text

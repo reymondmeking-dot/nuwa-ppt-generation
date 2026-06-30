@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#050816" /><stop offset="100%" stop-color="#0B1026" /></linearGradient>
+    <linearGradient id="nodeGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00E5FF" /><stop offset="100%" stop-color="#7C3AED" /></linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceAlpha" stdDeviation="7" result="blur" /><feFlood flood-color="#00E5FF" flood-opacity="0.36" result="glowColor" /><feComposite in="glowColor" in2="blur" operator="in" result="glow" /><feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+    <filter id="shadow" x="-15%" y="-15%" width="135%" height="135%"><feGaussianBlur in="SourceAlpha" stdDeviation="9" /><feOffset dx="0" dy="6" result="offsetBlur" /><feFlood flood-color="#000000" flood-opacity="0.18" result="shadowColor" /><feComposite in="shadowColor" in2="offsetBlur" operator="in" result="shadow" /><feMerge><feMergeNode in="shadow" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5 L0,10 Z" fill="#00E5FF" /></marker>
+  </defs>
+  <g id="background">
+    <rect width="1280" height="720" fill="url(#bg)" />
+    <path d="M80 130H1200 M80 590H1200" stroke="#20325F" stroke-width="1" stroke-opacity="0.55" />
+    <circle cx="1120" cy="110" r="250" fill="#7C3AED" fill-opacity="0.08" />
+    <circle cx="120" cy="660" r="280" fill="#00E5FF" fill-opacity="0.06" />
+  </g>
+  <g id="title">
+    <text x="80" y="94" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" letter-spacing="3" fill="#00E5FF">PIPELINE ARCHITECTURE</text>
+    <text x="80" y="148" font-family="Microsoft YaHei, Arial, sans-serif" font-size="44" font-weight="700" fill="#EAF2FF">从 SVG 设计稿到原生可编辑 PPTX</text>
+    <text x="80" y="186" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" fill="#8DA2C0">ppt-master 通过规范化项目目录、质量检查、后处理和 DrawingML 导出完成闭环。</text>
+  </g>
+  <g id="pipeline-track" filter="url(#glow)">
+    <path d="M145 390 H1015" stroke="#00E5FF" stroke-width="4" stroke-linecap="round" marker-end="url(#arrow)" />
+    <path d="M145 390 H1015" stroke="#7C3AED" stroke-width="12" stroke-opacity="0.10" stroke-linecap="round" />
+  </g>
+  <g id="step-source" filter="url(#shadow)">
+    <path fill="#101A3F" stroke="#20325F" d="M112,268 H260 A26,26 0 0 1 286,294 V432 A26,26 0 0 1 260,458 H112 A26,26 0 0 1 86,432 V294 A26,26 0 0 1 112,268 Z" />
+    <circle cx="186" cy="328" r="36" fill="url(#nodeGrad)" />
+    <path d="M169 315H204 M169 328H204 M169 341H192" stroke="#050816" stroke-width="5" stroke-linecap="round" />
+    <text x="186" y="395" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="24" font-weight="700" fill="#EAF2FF">Source</text>
+    <text x="186" y="428" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" fill="#8DA2C0">Markdown / assets</text>
+  </g>
+  <g id="step-svg" filter="url(#shadow)">
+    <path fill="#101A3F" stroke="#20325F" d="M354,268 H502 A26,26 0 0 1 528,294 V432 A26,26 0 0 1 502,458 H354 A26,26 0 0 1 328,432 V294 A26,26 0 0 1 354,268 Z" />
+    <circle cx="428" cy="328" r="36" fill="#00E5FF" fill-opacity="0.16" stroke="#00E5FF" stroke-width="2" />
+    <path d="M408 338 L428 306 L448 338 Z" fill="#00E5FF" />
+    <text x="428" y="395" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="24" font-weight="700" fill="#EAF2FF">SVG</text>
+    <text x="428" y="428" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" fill="#8DA2C0">hand-authored pages</text>
+  </g>
+  <g id="step-qc" filter="url(#shadow)">
+    <path fill="#101A3F" stroke="#20325F" d="M596,268 H744 A26,26 0 0 1 770,294 V432 A26,26 0 0 1 744,458 H596 A26,26 0 0 1 570,432 V294 A26,26 0 0 1 596,268 Z" />
+    <circle cx="670" cy="328" r="36" fill="#7C3AED" fill-opacity="0.22" stroke="#7C3AED" stroke-width="2" />
+    <path d="M651 329 L663 341 L691 309" fill="none" stroke="#EAF2FF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+    <text x="670" y="395" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="24" font-weight="700" fill="#EAF2FF">Check</text>
+    <text x="670" y="428" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" fill="#8DA2C0">quality gate</text>
+  </g>
+  <g id="step-export" filter="url(#shadow)">
+    <path fill="#101A3F" stroke="#20325F" d="M838,268 H986 A26,26 0 0 1 1012,294 V432 A26,26 0 0 1 986,458 H838 A26,26 0 0 1 812,432 V294 A26,26 0 0 1 838,268 Z" />
+    <circle cx="912" cy="328" r="36" fill="#FF2E88" fill-opacity="0.20" stroke="#FF2E88" stroke-width="2" />
+    <path fill="none" stroke="#EAF2FF" stroke-width="4" d="M897,307 H927 A7,7 0 0 1 934,314 V344 A7,7 0 0 1 927,351 H897 A7,7 0 0 1 890,344 V314 A7,7 0 0 1 897,307 Z" />
+    <path d="M899 320H925 M899 333H918 M899 346H929" stroke="#00E5FF" stroke-width="3" stroke-linecap="round" />
+    <text x="912" y="395" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="24" font-weight="700" fill="#EAF2FF">PPTX</text>
+    <text x="912" y="428" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" fill="#8DA2C0">native shapes</text>
+  </g>
+  <g id="side-proof">
+    <path fill="#050816" stroke="#20325F" d="M1094,252 H1166 A28,28 0 0 1 1194,280 V448 A28,28 0 0 1 1166,476 H1094 A28,28 0 0 1 1066,448 V280 A28,28 0 0 1 1094,252 Z" />
+    <text x="1130" y="306" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="42" font-weight="700" fill="#00E5FF">4</text>
+    <text x="1130" y="340" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" fill="#8DA2C0">核心阶段</text>
+    <path d="M1100 382H1160 M1100 420H1160" stroke="#20325F" />
+    <text x="1130" y="405" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" fill="#EAF2FF">可验证</text>
+    <text x="1130" y="443" text-anchor="middle" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" fill="#EAF2FF">可复用</text>
+  </g>
+  <g id="footer"><text x="80" y="650" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" fill="#8DA2C0">Project: official_smoke_ppt169_20260630</text><text x="1200" y="650" text-anchor="end" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" fill="#8DA2C0">02 / 05</text></g>
+</svg>

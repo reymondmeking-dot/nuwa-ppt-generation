@@ -1,0 +1,33 @@
+# Python / runtime
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+pip-wheel-metadata/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Secrets / env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Generated temporary output
+*.log
+.review/
+live_preview/
+backup/
+
+# Large local-only experiments
+projects/
+*.tmp

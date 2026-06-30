@@ -1,0 +1,1 @@
+总结：ppt-master 已作为 Hermes skill 可用，测试项目与导出文件都保留在 D:\AI\ppt-master-sparse\projects 下，可继续复用或二次生成。
