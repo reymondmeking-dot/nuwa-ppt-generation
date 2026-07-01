@@ -11,6 +11,24 @@
 
 ---
 
+## Table of contents
+
+- [Why this exists](#why-this-exists)
+- [Highlights](#highlights)
+- [Repository layout](#repository-layout)
+- [Demos included](#demos-included)
+- [Quick start](#quick-start)
+- [Run the included quick GIF demo](#run-the-included-quick-gif-demo)
+- [Verify a generated PPTX](#verify-a-generated-pptx)
+- [Install as a Hermes skill](#install-as-a-hermes-skill)
+- [Create a new deck manually](#create-a-new-deck-manually)
+- [Design philosophy](#design-philosophy)
+- [Credits](#credits)
+- [License](#license)
+- [Security](#security)
+
+---
+
 ## Why this exists
 
 Most AI PPT tools stop at one of two unsatisfying outputs:
@@ -302,3 +320,9 @@ This package is based on the excellent open-source `hugohe3/ppt-master` project 
 ## License
 
 This packaging repository is released under the MIT License. Check upstream project files and dependencies for their respective licenses if you redistribute or embed them in another product.
+
+---
+
+## Security
+
+Please report security issues privately — see [SECURITY.md](SECURITY.md) for the disclosure policy and reporting channels. Do not open public GitHub issues for vulnerabilities.
