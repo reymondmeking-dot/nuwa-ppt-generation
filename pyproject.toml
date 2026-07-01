@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nuwa-ppt-generation"
+version = "1.0.0"
+description = "Agentic SVG-to-PPTX deck generation for high-end presentations."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "ReyMao" }]
+keywords = ["ppt", "pptx", "svg", "presentation", "agent", "nuwa"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business",
+]
+dependencies = [
+    "python-pptx>=0.6.21",
+    "lxml>=4.9",
+    "Pillow>=9.0.0",
+]
+
+[project.optional-dependencies]
+svg-render = ["cairosvg>=2.5", "svglib>=1.5.0", "reportlab>=4.0.0"]
+tts = ["edge-tts>=7.2.8"]
+full = [
+    "cairosvg>=2.5",
+    "svglib>=1.5.0",
+    "reportlab>=4.0.0",
+    "edge-tts>=7.2.8",
+    "PyMuPDF>=1.23.0",
+    "mammoth>=1.6.0",
+    "markdownify>=0.11.6",
+    "openpyxl>=3.1.0",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "numpy>=1.20.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/reymondmeking-dot/nuwa-ppt-generation"
+Repository = "https://github.com/reymondmeking-dot/nuwa-ppt-generation"
+
+[project.scripts]
+nuwa-ppt = "nuwa_ppt.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]

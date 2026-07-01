@@ -17,6 +17,7 @@
 - [Highlights](#highlights)
 - [Repository layout](#repository-layout)
 - [Demos included](#demos-included)
+- [Install as a CLI (macOS / Windows)](#安装与-cli-macos--windows)
 - [Quick start](#quick-start)
 - [Run the included quick GIF demo](#run-the-included-quick-gif-demo)
 - [Verify a generated PPTX](#verify-a-generated-pptx)
@@ -133,6 +134,87 @@ Verified properties:
 ```
 
 This demo exists specifically to prove the animated-GIF rule: export with `--no-image-optimize`, then inspect the PPTX zip for `ppt/media/*.gif`.
+
+---
+
+## 安装与 CLI (macOS / Windows)
+
+Nuwa 现在提供一个跨平台的 `nuwa-ppt` 命令行工具。它是对 `skills/productivity/ppt-master/scripts/` 中脚本的薄封装 —— 脚本仍是唯一事实来源，CLI 只负责在 macOS / Windows / Linux 上提供统一入口。
+
+### Prerequisites
+
+- Python 3.10+
+- Git 与 [Git LFS](https://git-lfs.com)（用于拉取 44MB 的 AI 图像对比资料）
+  - **macOS**: `brew install git-lfs`
+  - **Windows**: Git for Windows 已内置 `git-lfs`；如需单独下载见 https://git-lfs.com
+  - 首次使用需要执行一次：`git lfs install`
+  - clone 之后（本仓库已启用 LFS 存储 PNG 资料）：`git lfs pull`
+
+### 安装
+
+```bash
+# clone
+git clone https://github.com/reymondmeking-dot/nuwa-ppt-generation.git
+cd nuwa-ppt-generation
+git lfs pull
+
+# editable install (推荐用于开发 / 使用)
+pip install -e .
+
+# 或使用可选依赖组
+pip install -e ".[svg-render]"   # cairosvg + svglib + reportlab
+pip install -e ".[full]"          # 全部可选依赖
+```
+
+Windows 上如果 `pip` 不在 PATH 中，请使用 Python launcher：
+
+```powershell
+py -m pip install -e .
+py -m nuwa_ppt.cli --help   # 与 nuwa-ppt --help 等价
+```
+
+macOS Homebrew Python 用户建议在 venv 中安装：
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+### CLI 用法
+
+```bash
+nuwa-ppt --help
+nuwa-ppt version                              # 打印 1.0.0
+nuwa-ppt info                                 # 打印解析到的仓库/脚本路径
+
+# 校验 SVG 质量（wraps svg_quality_checker.py）
+nuwa-ppt validate demo-quick-gif
+
+# 拆分 notes/total.md 为每页 speaker note
+nuwa-ppt split demo-quick-gif
+
+# finalize（图标嵌入 + 图片对齐）
+nuwa-ppt finalize demo-quick-gif
+
+# 一键全流程（validate → split → finalize → export）
+nuwa-ppt build demo-quick-gif \
+    --transition push --animation auto \
+    --no-image-optimize
+
+# 打印内置 demo 使用说明
+nuwa-ppt demo
+```
+
+`--no-image-optimize` 对包含动态 GIF 的项目**必须**加上，否则 Pillow 会把 GIF 转码为静态 PNG/JPEG。
+
+如果你从子目录调用 `nuwa-ppt`，可以显式指定仓库路径或设置环境变量：
+
+```bash
+nuwa-ppt --repo /path/to/nuwa-ppt-generation build my-project
+# 或
+export NUWA_PPT_REPO=/path/to/nuwa-ppt-generation
+```
 
 ---
 
@@ -314,12 +396,13 @@ This package is based on the excellent open-source `hugohe3/ppt-master` project 
 - Upstream: `hugohe3/ppt-master`
 - Product/package name here: `nuwa-ppt-generation`
 - Local skill name: `ppt-master`
+- Packaging & CLI maintainer: **ReyMao** (`reymondmeking-dot`)
 
 ---
 
 ## License
 
-This packaging repository is released under the MIT License. Check upstream project files and dependencies for their respective licenses if you redistribute or embed them in another product.
+This packaging repository is released under the MIT License. Copyright © 2026 **ReyMao**. Check upstream project files and dependencies for their respective licenses if you redistribute or embed them in another product.
 
 ---
 
