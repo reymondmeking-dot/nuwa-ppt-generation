@@ -14,5 +14,53 @@
   "中汽研": {
     "summary": "CATARC brand identity for product certification, evaluation reports, automotive technology promotion, and business visits",
     "primary_color": "#004098"
+  },
+  "dashi_theme01": {
+    "summary": "轻拟态风 (soft-neumorphic) — 产品介绍 等",
+    "primary_color": "#5b8def"
+  },
+  "dashi_theme02": {
+    "summary": "炫光紫绿风 (glow-purple-green) — 科技发布会 等",
+    "primary_color": "#2fe07f"
+  },
+  "dashi_theme03": {
+    "summary": "深浅代码风 (dev-terminal) — 技术方案 等",
+    "primary_color": "#2742ec"
+  },
+  "dashi_theme04": {
+    "summary": "玻璃糖果风 (glass-candy) — 年轻化品牌 等",
+    "primary_color": "#FF9FE2"
+  },
+  "dashi_theme05": {
+    "summary": "色谱图表风 (chart-spectrum) — 数据报告 等",
+    "primary_color": "#2742C2"
+  },
+  "dashi_theme06": {
+    "summary": "深色图谱风 (dark-atlas) — 高密度数据展示 等",
+    "primary_color": "#c8f135"
+  },
+  "dashi_theme07": {
+    "summary": "冷白调研风 (cool-white-research) — 调研报告 等",
+    "primary_color": "#2F7BFF"
+  },
+  "dashi_theme08": {
+    "summary": "黑金实验风 (black-gold-lab) — 高端发布 等",
+    "primary_color": "#c96442"
+  },
+  "dashi_theme09": {
+    "summary": "深蓝杂志风 (deep-blue-magazine) — 品牌故事 等",
+    "primary_color": "#165FE7"
+  },
+  "dashi_theme10": {
+    "summary": "金色指数风 (golden-index) — 金融数据 等",
+    "primary_color": "#d8a85b"
+  },
+  "dashi_theme11": {
+    "summary": "高能增长风 (high-energy-growth) — 增长复盘 等",
+    "primary_color": "#ff6a2b"
+  },
+  "dashi_theme12": {
+    "summary": "声波霓虹风 (soundwave-neon) — 音乐娱乐 等",
+    "primary_color": "#3bb6ec"
   }
 }

@@ -148,6 +148,29 @@ python skills/ppt-master/scripts/svg_to_pptx.py projects/<project> \
 > - Do NOT create `.worktrees/`, `tests/`, branch workflows, or generic engineering structure by default
 > - On conflict with a generic coding skill, follow this skill unless the user explicitly says otherwise
 
+> [!IMPORTANT]
+> ## 🎯 Execution Discipline (Efficiency Rules)
+>
+> These 7 rules keep the pipeline efficient and prevent common failure modes. Inspired by the dashiAI-ppt template-orchestrator model, adapted for our free-design SVG pipeline.
+>
+> 1. **RETRY BUDGET = 2** — Rework caps at 2 rounds per phase (quality-check fails, spec-drift, visual issues). On the 3rd attempt, STOP and report the concrete blocker instead of grinding further. Applies to Executor page regeneration, `svg_quality_checker` re-runs, and `visual-review` refinements. Explicit user override ("keep trying" / "再试一次") resets the counter.
+>
+> 2. **LOCK-TEMPLATE-FILL-COPY MODE** — When the user says "套模板换文案" / "keep design, change words" / "把 X 主题套用到 Y 内容", route to lock-template-fill-copy mode: preserve every visual property (colors / fonts / shapes / positions / image slots), rewrite only the visible text content. Distinct from `beautify-pptx` (which preserves content and improves visuals) and `template-fill-pptx` (which does clone-slide OOXML editing). Trigger words: "套模板"、"换文案"、"填内容"、"lock template". Skip Eight Confirmations Tier 2 realization fields — inherit them from the locked source. See §Lock-Template-Fill-Copy Route below.
+>
+> 3. **DELEGATION KEYWORDS SKIP GATES** — When user says "都你来定" / "不用问，直接开干" / "你决定" / "up to you" / "just do it" / "别问了", treat as full delegation: auto-select every unspecified anchor (visual_style / audience / mode / delivery_purpose), skip Confirm UI, and list every assumption in the final delivery message. Partial delegation ("内容你自拟") only unlocks content-related fields; visual anchors still require confirmation.
+>
+> 4. **COPY LENGTH BUDGETS** — Every SVG page MUST respect per-field character budgets. When Strategist writes `design_spec.md §V (Content Rhythm)`, include a `copy_budgets` block per page listing max chars for heading / body / bullet / metric fields. Executor MUST refuse to write copy exceeding the budget; instead, tighten or move overflow to next page. Empirical baselines (1280×720 canvas, body_size = 24px): heading ≤ 20 CJK / 30 Latin; body ≤ 60 CJK / 90 Latin per line, ≤ 3 lines; metric label ≤ 6 CJK / 10 Latin; metric value ≤ 8 chars. This prevents ~90% of text-overflow SVG bugs.
+>
+> 5. **NO LAYOUT REPETITION WITHIN ONE DECK** — Every page in a deck MUST use a distinct visual layout structure. When Strategist writes `§IV Page Types`, no two pages may share the same page-type key. Repetition kills perceived production value. The one exception: multi-part content pages that are visually acknowledged as a series (page 3/5, 4/5, 5/5) — these carry an explicit `series_id` in `spec_lock.md`.
+>
+> 6. **DEFAULT NO BROWSER SMOKE-CHECK** — Do NOT open a browser, launch Chrome, or run `visual-review` by default. The canonical deliverable is the PPTX; the SVG live-preview server (Step 6) is for the user's own preview, not for AI visual QA. Only run `visual-review` when: (a) user explicitly says "check the visuals" / "帮我看看效果" / "视觉精修", (b) `svg_quality_checker` flagged geometry issues that require rendered inspection, or (c) a prior render collapsed props to defaults. Random screenshots for "just to be safe" are FORBIDDEN — they burn time and rarely surface actionable issues.
+>
+> 7. **STATIC VERSION CHECK (SILENT)** — Before the final delivery message, run:
+>    ```bash
+>    python3 ${SKILL_DIR}/scripts/check_latest_version.py
+>    ```
+>    If it prints output (new version available), append that block verbatim to the end of your final reply. If it prints nothing OR fails silently (network down, GitHub API rate-limited, etc.), stay silent — do NOT mention "version check passed" or "no updates". The current skill version lives in `${SKILL_DIR}/scripts/skill_version.py` as `SKILL_VERSION`.
+
 ## Rule Strength Labels
 
 | Label | Meaning |
@@ -219,6 +242,7 @@ For complete tool documentation, see `${SKILL_DIR}/scripts/README.md`.
 |---|---|
 | Raw PPTX template plus new material/topic, generate a PPTX | [`template-fill-pptx`](workflows/template-fill-pptx.md) |
 | Existing PPTX, preserve page count/order and slide wording 1:1, improve layout | [`beautify-pptx`](workflows/beautify-pptx.md) |
+| Existing deck (any format), preserve visuals 1:1, only rewrite text copy | Lock-Template-Fill-Copy Route (§below) |
 | Existing PPTX as source material, rethink outline or change page count/order | Main pipeline via `ppt_to_md.py` plus PPTX intake |
 | Build a reusable template package from a PPTX/design reference | [`create-template`](workflows/create-template.md), then return with the generated template directory path |
 | Finished PPTX, keep content/layout stable and add notes/audio/timing/transitions | [`native-enhance-pptx`](workflows/native-enhance-pptx.md) |
@@ -228,6 +252,26 @@ For complete tool documentation, see `${SKILL_DIR}/scripts/README.md`.
 **MUST**: Beautify is strictly 1:1. Any split, merge, drop, reorder, or page-count change routes to the main pipeline.
 
 **FALLBACK**: Ambiguous requests such as "make this PPT more professional" require exactly one discriminator question: preserve original page count/order and slide wording, or treat the deck as source material and restructure it?
+
+### Lock-Template-Fill-Copy Route
+
+**Trigger**: user says "套模板换文案" / "keep the design, just change the words" / "把 <brand X> 套到我这份内容上" / "lock template, fill copy". Distinct from beautify (which preserves content) and template-fill-pptx (OOXML clone-edit).
+
+**Inputs required**:
+1. Locked design source — a `templates/brands/<id>/` path, `templates/decks/<id>/` path, or an existing SVG deck under `<project>/svg_output/`
+2. New content — Markdown, plain text, or conversation-provided outline
+
+**Procedure**:
+1. Copy the locked source into the new project's `templates/` (bitmap assets → `images/` per §Step 3 rules)
+2. Extract `spec_lock.md` from the locked source verbatim — every color / font / size / layout key is FROZEN
+3. Skip Eight Confirmations Tier 2 realization fields entirely (they are already answered by the lock). Tier 1 anchors still apply for content decisions: audience, page count, core message, `content_divergence`
+4. Strategist writes `design_spec.md` with content-only fields (§I audience/purpose, §V page rhythm, §IX outline). §II/III/IV/VI-VIII inherit from the lock and are copied verbatim
+5. Executor generates each SVG by taking the locked template SVG as the visual chassis and swapping only text nodes — image slots keep source images unless user provides replacements
+6. `svg_quality_checker` MUST pass with 0 errors; text-overflow errors here are HARDER (no visual retreat room), so §Copy Length Budgets (rule #4) is doubly enforced
+
+**Boundary vs beautify**: beautify KEEPS content and changes visuals; lock-template-fill-copy KEEPS visuals and changes content. If the user wants both changed, that's the main pipeline (not this route).
+
+**Boundary vs template-fill-pptx**: template-fill-pptx clones OOXML slides and edits placeholder text — it is PPTX-native and never re-renders SVG. Lock-template-fill-copy re-renders SVG from the locked template — use it when the source is SVG-authored or when you need SVG-level control.
 
 ---
 
