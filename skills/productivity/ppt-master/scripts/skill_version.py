@@ -3,4 +3,4 @@
 Format: semver-ish string. Read by scripts/check_latest_version.py.
 """
 
-SKILL_VERSION = "0.2.0"
+SKILL_VERSION = "0.2.1"

@@ -18,7 +18,7 @@ import argparse
 import json
 import os
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 
 from console_encoding import configure_utf8_stdio
 
@@ -53,24 +53,42 @@ CHART_TEMPLATES_DIR = TEMPLATES_DIR / 'charts'
 
 USER_CONFIG_DIR = Path.home() / '.ppt-master'
 USER_ENV_FILE = USER_CONFIG_DIR / '.env'
+ENV_FILE_VARIABLE = 'PPT_MASTER_ENV_FILE'
+TRUST_CWD_ENV_VARIABLE = 'PPT_MASTER_TRUST_CWD_ENV'
 
 
 def get_env_candidates() -> list[Path]:
-    """Return the supported .env lookup order."""
-    return [
-        Path.cwd() / '.env',
-        PROJECT_ROOT / '.env',
-        REPO_ROOT / '.env',
-        USER_ENV_FILE,
-    ]
+    """Return trusted .env candidates in lookup order.
+
+    The process CWD is intentionally excluded by default: opening an
+    untrusted checkout and running a Nuwa command there must not let that
+    checkout redirect API requests while the user's API key is attached.
+    CWD loading remains available as an explicit opt-in for legacy workflows.
+    """
+    override = os.environ.get(ENV_FILE_VARIABLE, '').strip()
+    if override:
+        return [Path(override).expanduser().resolve()]
+
+    candidates = [PROJECT_ROOT / '.env', REPO_ROOT / '.env', USER_ENV_FILE]
+    if os.environ.get(TRUST_CWD_ENV_VARIABLE, '').strip().lower() in {
+        '1', 'true', 'yes', 'on'
+    }:
+        candidates.insert(0, Path.cwd() / '.env')
+
+    unique: list[Path] = []
+    for candidate in candidates:
+        resolved = candidate.expanduser().resolve()
+        if resolved not in unique:
+            unique.append(resolved)
+    return unique
 
 
 def resolve_env_path() -> Path:
     """
     Return the first existing .env path.
 
-    If no candidate exists, return the CWD .env path so callers can no-op
-    consistently while still showing a useful default location in messages.
+    If no candidate exists, return the trusted project-level path so callers
+    can no-op consistently while still showing a useful default location.
     """
     candidates = get_env_candidates()
     for candidate in candidates:

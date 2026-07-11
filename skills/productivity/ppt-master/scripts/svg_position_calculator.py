@@ -32,7 +32,7 @@ import re
 import math
 import argparse
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
 
 # Fix garbled Chinese output on Windows
@@ -1046,7 +1046,7 @@ def analyze_svg_file(svg_file: str) -> None:
     # Extract path elements
     paths = re.findall(r'<path[^>]*d="([^"]*)"', content)
 
-    print(f"\nElement statistics:")
+    print("\nElement statistics:")
     print(f"  - rect (rectangle): {len(rects)}")
     print(f"  - circle: {len(circles)}")
     print(f"  - polyline/polygon: {len(polylines)}")
@@ -1054,7 +1054,7 @@ def analyze_svg_file(svg_file: str) -> None:
 
     # List rect elements in detail
     if rects:
-        print(f"\n=== Rectangle Elements (rect) ===")
+        print("\n=== Rectangle Elements (rect) ===")
         print(f"{'Index':<6}{'X':<8}  {'Y':<8}  {'Width':<8}  {'Height':<8}")
         print("-" * 45)
         for i, (x, y, w, h) in enumerate(rects[:20], 1):  # Only show first 20
@@ -1066,7 +1066,7 @@ def analyze_svg_file(svg_file: str) -> None:
 
     # List circle elements in detail
     if circles:
-        print(f"\n=== Circle Elements (circle) ===")
+        print("\n=== Circle Elements (circle) ===")
         print(f"{'Index':<6}{'CX':<10}  {'CY':<10}  {'Radius':<8}")
         print("-" * 40)
         for i, (cx, cy, r) in enumerate(circles[:20], 1):
@@ -1077,7 +1077,7 @@ def analyze_svg_file(svg_file: str) -> None:
 
     # List polyline points
     if polylines:
-        print(f"\n=== Polyline/Polygon (polyline/polygon) ===")
+        print("\n=== Polyline/Polygon (polyline/polygon) ===")
         for i, points in enumerate(polylines, 1):
             point_list = points.strip().split()
             print(f"\nPolyline {i} ({len(point_list)} points):")
@@ -1221,7 +1221,7 @@ def interactive_mode() -> None:
                         x = base_x + i * step_x
                         y = base_y - (v - ref_value) * scale_y
                         points_list.append(f"{int(x)},{int(y)}")
-                    print(f"\npolyline points:")
+                    print("\npolyline points:")
                     print(" ".join(points_list))
 
             else:
@@ -1296,7 +1296,7 @@ def from_json_config(config_file: str) -> None:
             print(f"{i:<6}{v:<10.1f}  {x:<8.0f}  {y:<8.0f}")
             points_list.append(f"{int(x)},{int(y)}")
 
-        print(f"\npolyline points:")
+        print("\npolyline points:")
         print(" ".join(points_list))
 
 
@@ -1422,7 +1422,7 @@ Common commands:
                                       horizontal=args.horizontal,
                                       y_min=v_min, y_max=v_max)
 
-            print(f"\n=== Bar Chart Coordinate Calculation ===")
+            print("\n=== Bar Chart Coordinate Calculation ===")
             print(f"Canvas: {CANVAS_FORMATS.get(canvas, {}).get('dimensions', canvas)}")
             print(f"Chart area: ({coord.chart_area.x_min}, {coord.chart_area.y_min}) - "
                   f"({coord.chart_area.x_max}, {coord.chart_area.y_max})")
@@ -1436,7 +1436,7 @@ Common commands:
             data = parse_data_string(args.data)
             slices = calc.calculate(data, start_angle=args.start_angle, inner_radius=args.inner_radius)
 
-            print(f"\n=== Pie Chart Slice Calculation ===")
+            print("\n=== Pie Chart Slice Calculation ===")
             print(calc.format_table(slices))
 
         elif args.chart_type == 'radar':
@@ -1445,7 +1445,7 @@ Common commands:
             data = parse_data_string(args.data)
             points = calc.calculate(data, max_value=args.max_value)
 
-            print(f"\n=== Radar Chart Vertex Calculation ===")
+            print("\n=== Radar Chart Vertex Calculation ===")
             print(calc.format_table(points))
 
         elif args.chart_type == 'line':
@@ -1459,7 +1459,7 @@ Common commands:
 
             points = calc.calculate(data, x_range, y_range)
 
-            print(f"\n=== Line / Scatter Chart Coordinate Calculation ===")
+            print("\n=== Line / Scatter Chart Coordinate Calculation ===")
             print(f"Canvas: {CANVAS_FORMATS.get(canvas, {}).get('dimensions', canvas)}")
             print(calc.format_table(points))
 
@@ -1487,7 +1487,7 @@ Common commands:
 
             positions = validator.extract_all_positions(content)
 
-            print(f"\n=== Extracted Element Positions ===")
+            print("\n=== Extracted Element Positions ===")
             print(f"File: {args.svg_file}")
             print()
 

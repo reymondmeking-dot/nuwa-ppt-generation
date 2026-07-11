@@ -33,7 +33,6 @@ Processing options:
     fix-rounded   - Convert <rect rx="..."/> to <path> (for PPT shape conversion)
 """
 
-import os
 import sys
 import shutil
 import argparse
@@ -151,7 +150,7 @@ def finalize_project(
     # Get list of SVG files
     svg_files = list(svg_output.glob('*.svg'))
     if not svg_files:
-        safe_print(f"[ERROR] No SVG files in svg_output")
+        safe_print("[ERROR] No SVG files in svg_output")
         return False
 
     if not quiet:

@@ -44,12 +44,10 @@ Options:
 
 from __future__ import annotations
 
-import os
 import re
 import sys
 import argparse
 from pathlib import Path
-from xml.etree import ElementTree as ET
 
 _SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(_SCRIPTS_DIR) not in sys.path:

@@ -30,6 +30,7 @@ from .ooxml import (
 )
 from .package import _add_content_type_override, _find_relationship, _relative_target
 from .selectors import _chart_selectors
+from archive_security import open_safe_zip
 
 
 def _chart_key_maps(slide_root: ET.Element, source_slide: int) -> dict[str, dict[str, str]]:
@@ -251,7 +252,7 @@ def _spreadsheet_cell(value: Any, row: int, col: int) -> ET.Element:
 def _rewrite_chart_workbook(xlsx_bytes: bytes, chart_edit: dict[str, Any]) -> bytes:
     categories = chart_edit.get("categories", [])
     series_payload = chart_edit.get("series", [])
-    with zipfile.ZipFile(io.BytesIO(xlsx_bytes)) as zin:
+    with open_safe_zip(io.BytesIO(xlsx_bytes)) as zin:
         xlsx_entries = {info.filename: zin.read(info.filename) for info in zin.infolist() if not info.is_dir()}
     sheet_part = _first_workbook_sheet(xlsx_entries) or "xl/worksheets/sheet1.xml"
     if sheet_part not in xlsx_entries:

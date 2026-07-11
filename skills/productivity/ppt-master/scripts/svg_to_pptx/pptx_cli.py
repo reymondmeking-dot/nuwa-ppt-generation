@@ -655,7 +655,7 @@ Recorded narration:
                 if verbose:
                     print(f"  [warn] svg_output backup skipped: {exc}")
         elif verbose:
-            print(f"  [info] svg_output/ not found, backup skipped")
+            print("  [info] svg_output/ not found, backup skipped")
 
     if success and cache_dir is not None and cache_dir.is_dir() and not args.keep_cache:
         try:

@@ -21,6 +21,7 @@ import base64
 import hashlib
 import json
 import mimetypes
+import os
 import posixpath
 import re
 import shutil
@@ -38,6 +39,12 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 from console_encoding import configure_utf8_stdio  # noqa: E402
+from archive_security import open_safe_zip  # noqa: E402
+from network_security import (  # noqa: E402
+    read_limited_response,
+    redirect_url,
+    validate_public_http_url,
+)
 
 configure_utf8_stdio()
 
@@ -67,6 +74,7 @@ IMAGE_ASSET_SUFFIXES = {
     ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tiff", ".tif",
     ".emf", ".wmf", ".svg",
 }
+MAX_EMBED_IMAGE_BYTES = 15 * 1024 * 1024
 
 DOCX_NS = {
     "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
@@ -322,7 +330,7 @@ def _occurrence_entry(
 def _docx_image_occurrences(input_file: Path) -> list[dict[str, object]]:
     """Read DOCX drawing order and Word display dimensions."""
     try:
-        with zipfile.ZipFile(input_file) as docx:
+        with open_safe_zip(input_file) as docx:
             rels_root = ET.fromstring(docx.read("word/_rels/document.xml.rels"))
             doc_root = ET.fromstring(docx.read("word/document.xml"))
             media_hashes = {
@@ -625,7 +633,7 @@ def _docx_inject_math_latex(
     after mammoth has produced the Markdown.
     """
     try:
-        with zipfile.ZipFile(input_file) as docx:
+        with open_safe_zip(input_file) as docx:
             document_xml = docx.read("word/document.xml")
     except (KeyError, zipfile.BadZipFile, OSError):
         return None
@@ -672,7 +680,7 @@ def _docx_inject_math_latex(
     tmp = tempfile.NamedTemporaryFile(suffix=".docx", delete=False)
     tmp.close()
     out_path = Path(tmp.name)
-    with zipfile.ZipFile(input_file) as zin, \
+    with open_safe_zip(input_file) as zin, \
             zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as zout:
         for item in zin.infolist():
             data = patched_xml if item.filename == "word/document.xml" else zin.read(item.filename)
@@ -791,27 +799,47 @@ def _save_data_uri(data_uri: str, media_dir: Path, index: int) -> str | None:
     if not match:
         return None
     mime = match.group("mime")
+    if not mime.lower().startswith("image/"):
+        return None
     ext = mimetypes.guess_extension(mime) or ".bin"
     if ext == ".jpe":
         ext = ".jpg"
     filename = f"image_{index:03d}{ext}"
     try:
-        (media_dir / filename).write_bytes(base64.b64decode(match.group("data")))
+        encoded = match.group("data")
+        if len(encoded) > (MAX_EMBED_IMAGE_BYTES * 4 // 3) + 4:
+            return None
+        decoded = base64.b64decode(encoded, validate=True)
+        if len(decoded) > MAX_EMBED_IMAGE_BYTES:
+            return None
+        (media_dir / filename).write_bytes(decoded)
     except Exception:
         return None
     return filename
 
 
 def _copy_local_image(src: str, base_dir: Path, media_dir: Path, index: int) -> str | None:
-    """Copy a local image (relative or file://) into media_dir."""
+    """Copy a local image only when it remains inside the source directory."""
     parsed = urlparse(src)
-    if parsed.scheme in ("http", "https"):
+    if parsed.scheme not in ("", "file") or (parsed.scheme == "file" and parsed.netloc):
         return None
     path_str = unquote(parsed.path if parsed.scheme == "file" else src)
+    if os.name == "nt" and re.match(r"^/[A-Za-z]:", path_str):
+        path_str = path_str[1:]
     candidate = Path(path_str)
     if not candidate.is_absolute():
-        candidate = (base_dir / candidate).resolve()
-    if not candidate.is_file():
+        candidate = base_dir / candidate
+    candidate = candidate.resolve()
+    base_root = base_dir.resolve()
+    try:
+        candidate.relative_to(base_root)
+    except ValueError:
+        return None
+    if (
+        not candidate.is_file()
+        or candidate.suffix.lower() not in IMAGE_ASSET_SUFFIXES
+        or candidate.stat().st_size > MAX_EMBED_IMAGE_BYTES
+    ):
         return None
     ext = candidate.suffix or ".bin"
     filename = f"image_{index:03d}{ext}"
@@ -826,18 +854,37 @@ def _download_remote_image(url: str, media_dir: Path, index: int) -> str | None:
     except ImportError:
         return None
     try:
-        resp = requests.get(url, timeout=10, stream=True)
-        resp.raise_for_status()
+        current_url = validate_public_http_url(url)
+        for _ in range(6):
+            resp = requests.get(
+                current_url,
+                timeout=10,
+                stream=True,
+                allow_redirects=False,
+            )
+            target = redirect_url(current_url, resp)
+            if target:
+                resp.close()
+                current_url = validate_public_http_url(target)
+                continue
+            resp.raise_for_status()
+            content_type = resp.headers.get("Content-Type", "").split(";")[0].strip()
+            if content_type and not content_type.lower().startswith("image/"):
+                resp.close()
+                return None
+            content = read_limited_response(resp, MAX_EMBED_IMAGE_BYTES)
+            break
+        else:
+            return None
     except Exception:
         return None
-    content_type = resp.headers.get("Content-Type", "").split(";")[0].strip()
     ext = mimetypes.guess_extension(content_type) if content_type else None
     if not ext:
         ext = Path(urlparse(url).path).suffix or ".bin"
     if ext == ".jpe":
         ext = ".jpg"
     filename = f"image_{index:03d}{ext}"
-    (media_dir / filename).write_bytes(resp.content)
+    (media_dir / filename).write_bytes(content)
     return filename
 
 
@@ -921,7 +968,7 @@ def _sanitize_epub_manifest(src: Path) -> tuple[Path, bool]:
     CONT_NS = "urn:oasis:names:tc:opendocument:xmlns:container"
 
     try:
-        with zipfile.ZipFile(src, "r") as zin:
+        with open_safe_zip(src) as zin:
             names = set(zin.namelist())
             if "META-INF/container.xml" not in names:
                 return src, False

@@ -698,12 +698,12 @@ def extract_pdf_to_markdown(
     filename = Path(pdf_path).stem
     title = re.sub(r'^\d+-', '', filename).strip()
 
-    print(f"[INFO] Analyzing document structure...")
+    print("[INFO] Analyzing document structure...")
     size_map = analyze_font_sizes(doc)
     print(f"   Font size mapping: body={size_map.get('body', 'N/A')}, " +
           f"H1={size_map.get('h1', 'N/A')}, H2={size_map.get('h2', 'N/A')}, H3={size_map.get('h3', 'N/A')}")
 
-    print(f"[INFO] Detecting repeated headers/footers...")
+    print("[INFO] Detecting repeated headers/footers...")
     noise_texts = detect_headers_footers(doc)
     if noise_texts:
         print(f"   Found {len(noise_texts)} repeated noise texts (will be removed):")

@@ -25,6 +25,7 @@ from .ooxml import (
     _table_containers,
     _text_containers,
 )
+from archive_security import open_safe_zip
 
 THANKS_KEYWORDS = ("thank", "thanks", "q&a", "qa", "contact", "致谢", "谢谢", "感谢", "答疑", "联系方式")
 TOC_KEYWORDS = ("agenda", "contents", "content", "outline", "目录", "议程")
@@ -168,7 +169,7 @@ def _fill_risk(tables: list[dict[str, Any]], charts: list[dict[str, Any]]) -> di
 
 def analyze_pptx(pptx_path: Path) -> dict[str, Any]:
     """Extract a slide library with text replacement slots."""
-    with zipfile.ZipFile(pptx_path) as zf:
+    with open_safe_zip(pptx_path) as zf:
         pres_root = _read_xml(zf, "ppt/presentation.xml")
         slide_refs = _parse_slide_refs(zf)
         slides: list[dict[str, Any]] = []

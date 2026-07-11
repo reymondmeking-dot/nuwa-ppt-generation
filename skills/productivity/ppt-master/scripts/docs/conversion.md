@@ -1,6 +1,6 @@
 # Conversion Tools
 
-> Architecture rationale (why native-Python first with pandoc fallback, why curl_cffi for TLS impersonation): see [docs/technical-design.md "Source Content Conversion"](../../../../docs/technical-design.md#source-content-conversion).
+> Design note: conversion prefers native Python parsers for predictable behavior, falls back to Pandoc for formats it handles better, and uses `curl_cffi` only when a remote source requires browser-like TLS behavior.
 
 Source conversion tools turn PDFs, documents, slide decks, and web pages into Markdown before project creation.
 
@@ -45,6 +45,10 @@ Native path (no external binary required):
 - `.html` / `.htm` — via `markdownify` + `beautifulsoup4`
 - `.epub` — via `ebooklib` + `markdownify`
 - `.ipynb` — via `nbconvert`
+
+HTML image imports are confined to the document directory. Absolute or
+`file://` references outside that directory are ignored, and remote images are
+limited to public HTTP(S) targets and 15 MiB each.
 
 Pandoc fallback (only if you need these):
 - `.doc`, `.odt`, `.rtf`, `.tex`/`.latex`, `.rst`, `.org`, `.typ`
@@ -172,6 +176,13 @@ automatically impersonates a modern Chrome TLS fingerprint, which lets it
 fetch WeChat Official Accounts (`mp.weixin.qq.com`) and other sites that
 block Python's default TLS fingerprint. No extra flags needed. If
 `curl_cffi` is not available, it falls back to plain `requests`.
+
+TLS certificates are verified. Redirects are revalidated, private/loopback
+targets and non-standard ports are blocked, page responses are capped at
+10 MiB, and downloaded images are capped per-file and in aggregate. Trusted
+intranet conversion can be enabled explicitly with
+`PPT_MASTER_ALLOW_PRIVATE_NETWORK=1`; non-standard ports additionally require
+`PPT_MASTER_ALLOW_NONSTANDARD_PORTS=1`.
 
 
 ## `rotate_images.py`

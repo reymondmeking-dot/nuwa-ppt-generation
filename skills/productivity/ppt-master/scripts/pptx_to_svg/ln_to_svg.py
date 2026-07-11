@@ -222,7 +222,6 @@ def _build_arrow_marker(
         body = f'<path d="{path}" fill="{stroke_color}"/>'
 
     orient = "auto-start-reverse" if reversed_ else "auto"
-    fill_attr = "" if typ == "arrow" else ""  # no extra
     # Note: stroke="none" prevents marker from inheriting parent stroke.
     marker_def = (
         f'<marker id="{marker_id}" viewBox="0 0 10 10" '

@@ -37,6 +37,7 @@ from .transitions import (
     _resolve_slide_transition,
     _set_slide_transition,
 )
+from archive_security import open_safe_zip
 
 
 def apply_plan(
@@ -52,7 +53,7 @@ def apply_plan(
     if not isinstance(plan_slides, list) or not plan_slides:
         raise RuntimeError("Plan must contain a non-empty 'slides' list")
 
-    with zipfile.ZipFile(pptx_path) as zf:
+    with open_safe_zip(pptx_path) as zf:
         entries = {info.filename: zf.read(info.filename) for info in zf.infolist() if not info.is_dir()}
         slide_refs = {slide.index: slide for slide in _parse_slide_refs(zf)}
     notes_master_target = _find_notes_master_target(entries)

@@ -426,7 +426,7 @@ def _generate_image(api_key: str, prompt: str,
     print()
 
     start_time = time.time()
-    print(f"  [..] Generating...", end="", flush=True)
+    print("  [..] Generating...", end="", flush=True)
 
     # Heartbeat thread
     heartbeat_stop = threading.Event()

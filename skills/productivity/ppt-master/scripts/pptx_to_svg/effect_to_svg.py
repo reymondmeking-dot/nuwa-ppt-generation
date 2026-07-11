@@ -59,7 +59,6 @@ def convert_effects(
     for child in list(effect_lst):
         if not isinstance(child.tag, str):
             continue
-        local = child.tag.split("}", 1)[-1]
         prim, last_result = _convert_one_effect(child, last_result, palette)
         if prim:
             primitives.append(prim)

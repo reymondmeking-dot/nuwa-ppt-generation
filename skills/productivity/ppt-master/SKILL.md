@@ -377,7 +377,7 @@ There is no slug matching, no name lookup, no fuzzy resolution. A name without a
 
 #### Three template kinds
 
-The architecture has three independent reference bundles. Full schema in [`docs/zh/templates-architecture.md`](../../docs/zh/templates-architecture.md). Summary:
+The architecture has three independent reference bundles. See the maintained [template resources overview](templates/README.md) and the summary below:
 
 | Kind | Physical dir | Contains | Frontmatter |
 |---|---|---|---|

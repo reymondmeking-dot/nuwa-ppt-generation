@@ -6,6 +6,6 @@ convenient ``nuwa-ppt`` entry point on both macOS and Windows without
 relocating any of the skill's files.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "ReyMao"
 __license__ = "MIT"

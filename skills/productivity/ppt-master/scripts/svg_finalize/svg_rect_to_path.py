@@ -23,7 +23,7 @@ import sys
 import re
 import argparse
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Tuple
 from xml.etree import ElementTree as ET
 
 _SCRIPTS_DIR = Path(__file__).resolve().parents[1]
@@ -290,7 +290,7 @@ What it does:
             if not quiet:
                 print(f"[DONE] Saved: {output_path}")
         else:
-            print(f"[FAIL] Processing failed")
+            print("[FAIL] Processing failed")
             sys.exit(1)
     
     else:

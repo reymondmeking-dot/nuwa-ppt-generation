@@ -14,7 +14,8 @@ from pathlib import Path, PurePosixPath
 from typing import Iterator
 from xml.etree import ElementTree as ET
 
-from .emu_units import NS, emu_attr_to_px
+from .emu_units import NS
+from archive_security import validate_zip_archive
 
 
 # ---------------------------------------------------------------------------
@@ -168,6 +169,7 @@ class OoxmlPackage:
         if self.zip is not None:
             return
         self.zip = zipfile.ZipFile(self.path, "r")
+        validate_zip_archive(self.zip)
         self._load_presentation()
         self._load_slides()
 

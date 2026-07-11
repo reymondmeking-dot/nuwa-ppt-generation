@@ -339,9 +339,9 @@ def _rgb01_to_hex(r: float, g: float, b: float) -> str:
     return f"{int(round(r * 255)):02X}{int(round(g * 255)):02X}{int(round(b * 255)):02X}"
 
 
-def _hsl_to_hex(h: float, s: float, l: float) -> str:
+def _hsl_to_hex(h: float, s: float, lightness: float) -> str:
     h = h % 1.0 if h != 1.0 else 1.0
     s = max(0.0, min(1.0, s))
-    l = max(0.0, min(1.0, l))
-    r, g, b = colorsys.hls_to_rgb(h, l, s)
+    lightness = max(0.0, min(1.0, lightness))
+    r, g, b = colorsys.hls_to_rgb(h, lightness, s)
     return _rgb01_to_hex(r, g, b)

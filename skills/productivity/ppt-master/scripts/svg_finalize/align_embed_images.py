@@ -44,6 +44,7 @@ crops can no longer accumulate across re-runs.
 
 from __future__ import annotations
 
+import argparse
 import base64
 import io
 import os
@@ -487,7 +488,6 @@ def align_and_embed_images_in_svg(
 
 def build_parser() -> argparse.ArgumentParser:
     """Build the standalone diagnostic parser."""
-    import argparse
     parser = argparse.ArgumentParser(
         description='Align (slice/meet) and Base64-embed all <image> refs in an SVG.',
     )

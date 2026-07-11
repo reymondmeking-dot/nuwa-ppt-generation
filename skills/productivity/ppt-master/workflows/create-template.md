@@ -23,7 +23,7 @@ This workflow produces one of two kinds of templates depending on whether the so
 | **deck** (default) | Source is a specific organization's branded PPT (e.g. company report, university defense template); the visual identity is part of the replica | `templates/decks/<id>/` | Full segments: identity + structure + middle |
 | **layout** | Source is a generic stylistic template (no specific brand); only the structural skeleton should be reusable; color / typography decided per-deck downstream | `templates/layouts/<id>/` | Structure segments only (canvas / page structure / page types / SVG roster); identity segment omitted |
 
-Default to **deck** unless the user explicitly says "structure only" / "layout only" / "no brand identity". When in doubt, lean deck — losing identity later is easy; reconstructing it from a layout-mode strip is not. See [`docs/zh/templates-architecture.md`](../../../docs/zh/templates-architecture.md) for the full kind / schema / fusion model.
+Default to **deck** unless the user explicitly says "structure only" / "layout only" / "no brand identity". When in doubt, lean deck — losing identity later is easy; reconstructing it from a layout-mode strip is not. See the [template resources overview](../templates/README.md) for the maintained kind and fusion model.
 
 ## Process Overview
 

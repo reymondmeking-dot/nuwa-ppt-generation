@@ -185,7 +185,7 @@ pip install -e .
 
 ```bash
 nuwa-ppt --help
-nuwa-ppt version                              # 打印 1.0.0
+nuwa-ppt version                              # 打印 1.0.1
 nuwa-ppt info                                 # 打印解析到的仓库/脚本路径
 
 # 校验 SVG 质量（wraps svg_quality_checker.py）

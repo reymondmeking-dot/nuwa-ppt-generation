@@ -565,9 +565,7 @@ def convert_circle(elem: ET.Element, ctx: ConvertContext) -> ShapeResult | None:
     w = r_x * 2
     h = r_y * 2
 
-    fill_op = get_fill_opacity(elem, ctx)
     stroke_op = get_stroke_opacity(elem, ctx)
-    fill = build_fill_xml(elem, ctx, fill_op)
     stroke = build_stroke_xml(elem, ctx, stroke_op)
 
     effect = ''
@@ -887,9 +885,7 @@ def convert_polyline(elem: ET.Element, ctx: ConvertContext) -> ShapeResult | Non
 </a:path></a:pathLst>
 </a:custGeom>'''
 
-    fill_op = get_fill_opacity(elem, ctx)
     stroke_op = get_stroke_opacity(elem, ctx)
-    fill = build_fill_xml(elem, ctx, fill_op)
     stroke = build_stroke_xml(elem, ctx, stroke_op)
 
     shape_id = ctx.next_id()
@@ -2024,12 +2020,12 @@ def _compute_slice_src_rect(
     crop_t = crop_h_total * y_anchor
     crop_b = crop_h_total - crop_t
 
-    l = max(0, min(100000, int(round(crop_l / img_w * 100000))))
-    t = max(0, min(100000, int(round(crop_t / img_h * 100000))))
-    r = max(0, min(100000, int(round(crop_r / img_w * 100000))))
-    b = max(0, min(100000, int(round(crop_b / img_h * 100000))))
+    crop_left_pct = max(0, min(100000, int(round(crop_l / img_w * 100000))))
+    crop_top_pct = max(0, min(100000, int(round(crop_t / img_h * 100000))))
+    crop_right_pct = max(0, min(100000, int(round(crop_r / img_w * 100000))))
+    crop_bottom_pct = max(0, min(100000, int(round(crop_b / img_h * 100000))))
 
-    return (l, t, r, b)
+    return (crop_left_pct, crop_top_pct, crop_right_pct, crop_bottom_pct)
 
 
 def _resolve_image_src_rect(
@@ -2060,8 +2056,11 @@ def _resolve_image_src_rect(
     if rect is None:
         return ''
 
-    l, t, r, b = rect
-    return f'<a:srcRect l="{l}" t="{t}" r="{r}" b="{b}"/>'
+    crop_left, crop_top, crop_right, crop_bottom = rect
+    return (
+        f'<a:srcRect l="{crop_left}" t="{crop_top}" '
+        f'r="{crop_right}" b="{crop_bottom}"/>'
+    )
 
 
 def _resolve_image_meet_fit(
@@ -2364,12 +2363,15 @@ def convert_nested_svg(elem: ET.Element, ctx: ConvertContext) -> ShapeResult | N
         parts = view_box.strip().split()
         if len(parts) == 4:
             vb_x, vb_y, vb_w, vb_h = (float(p) for p in parts)
-            l = max(0, min(int(round(vb_x * 100000)), 100000))
-            t = max(0, min(int(round(vb_y * 100000)), 100000))
-            r = max(0, min(int(round((1.0 - vb_x - vb_w) * 100000)), 100000))
-            b = max(0, min(int(round((1.0 - vb_y - vb_h) * 100000)), 100000))
-            if l or t or r or b:
-                src_rect_xml = f'<a:srcRect l="{l}" t="{t}" r="{r}" b="{b}"/>'
+            crop_left = max(0, min(int(round(vb_x * 100000)), 100000))
+            crop_top = max(0, min(int(round(vb_y * 100000)), 100000))
+            crop_right = max(0, min(int(round((1.0 - vb_x - vb_w) * 100000)), 100000))
+            crop_bottom = max(0, min(int(round((1.0 - vb_y - vb_h) * 100000)), 100000))
+            if crop_left or crop_top or crop_right or crop_bottom:
+                src_rect_xml = (
+                    f'<a:srcRect l="{crop_left}" t="{crop_top}" '
+                    f'r="{crop_right}" b="{crop_bottom}"/>'
+                )
 
     if href.startswith('data:'):
         match = re.match(r'data:image/([A-Za-z0-9.+-]+);base64,(.+)', href, re.DOTALL)

@@ -52,11 +52,15 @@ if str(_SCRIPTS_DIR) not in sys.path:
 
 from console_encoding import configure_utf8_stdio  # noqa: E402
 from server_common import (  # noqa: E402
+    LOCAL_TOKEN_HEADER,
     claim_lock as _claim_lock,
     find_free_port as _find_free_port,
+    install_local_request_guard as _install_local_request_guard,
+    new_local_session_token as _new_local_session_token,
     process_alive as _process_alive,
     read_lock as _read_lock,
     release_lock as _release_lock,
+    set_local_session_cookie as _set_local_session_cookie,
 )
 
 configure_utf8_stdio()
@@ -227,10 +231,13 @@ def _shutdown_existing(lock_file: Path) -> int:
     # Graceful first: the server flushes and releases its own lock.
     if port:
         try:
+            headers = {'Content-Type': 'application/json'}
+            if existing.get('token'):
+                headers[LOCAL_TOKEN_HEADER] = str(existing['token'])
             req = urllib.request.Request(
                 f'http://127.0.0.1:{port}/api/shutdown',
                 data=b'{"reason": "step4-cleanup"}',
-                headers={'Content-Type': 'application/json'},
+                headers=headers,
                 method='POST',
             )
             urllib.request.urlopen(req, timeout=3)
@@ -291,6 +298,7 @@ def create_app(
     project_dir: str,
     idle_timeout: int = 900,
     lock_file: Optional[Path] = None,
+    session_token: str | None = None,
 ) -> Flask:
     """Create and configure the Flask app for a given project directory."""
     project_path = Path(project_dir).resolve()
@@ -301,6 +309,7 @@ def create_app(
     app.config['CONFIRM_DIR'] = confirm_dir
     app.config['LOCK_FILE'] = lock_file
     app.config['LAST_REQUEST_TIME'] = time.time()
+    _install_local_request_guard(app, session_token)
 
     @app.before_request
     def _update_activity():
@@ -339,7 +348,8 @@ def create_app(
 
     @app.route('/')
     def index():
-        return send_from_directory(app.static_folder, 'index.html')
+        response = send_from_directory(app.static_folder, 'index.html')
+        return _set_local_session_cookie(app, response)
 
     @app.route('/api/catalogs')
     def get_catalogs():
@@ -542,7 +552,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     # Per-project mutual exclusion: refuse duplicate launches. Stale locks
     # (dead pid) are overwritten by _claim_lock.
     lock_file = project_path / LOCK_FILE_NAME
-    existing = _claim_lock(lock_file, args.port)
+    session_token = _new_local_session_token()
+    existing = _claim_lock(lock_file, args.port, token=session_token)
     if existing:
         existing_pid = existing.get('pid', '?')
         existing_port = existing.get('port', '?')
@@ -566,6 +577,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         str(project_path),
         idle_timeout=args.timeout,
         lock_file=lock_file,
+        session_token=session_token,
     )
 
     url = f'http://localhost:{args.port}'

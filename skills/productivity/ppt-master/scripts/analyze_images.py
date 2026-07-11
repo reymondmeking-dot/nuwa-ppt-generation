@@ -379,7 +379,6 @@ def enrich_with_layout(
     canvas_key: str,
 ) -> None:
     """Add computed layout dimensions to each result in-place."""
-    fmt = CANVAS_FORMATS.get(canvas_key, {})
     margins = LAYOUT_MARGINS.get(canvas_key)
 
     if not margins:

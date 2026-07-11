@@ -1,6 +1,6 @@
 # Project Tools
 
-> Architecture rationale (why `import-sources` defaults are asymmetric for in-repo vs out-of-repo files): see [docs/technical-design.md "Project Structure & Lifecycle"](../../../../docs/technical-design.md#project-structure--lifecycle).
+> Design note: `import-sources` treats in-project files as managed assets and external files as explicit imports, preventing accidental writes outside the project while keeping normal in-repo workflows concise.
 
 Project tools create, validate, and inspect the standard PPT Master workspace.
 

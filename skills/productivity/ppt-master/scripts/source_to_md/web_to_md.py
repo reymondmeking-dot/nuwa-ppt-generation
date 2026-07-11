@@ -34,7 +34,6 @@ import json
 import os
 import re
 import sys
-import time
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
@@ -43,6 +42,12 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 from console_encoding import configure_utf8_stdio  # noqa: E402
+from network_security import (  # noqa: E402
+    BufferedResponse,
+    read_limited_response,
+    redirect_url,
+    validate_public_http_url,
+)
 
 configure_utf8_stdio()
 
@@ -64,21 +69,58 @@ except ImportError:
     _CURL_IMPERSONATE = None
 
 
-def _http_get(url: str, *, headers: dict | None = None, timeout: int | None = None,
-              verify: bool = False, stream: bool = False):
+def _http_get(
+    url: str,
+    *,
+    headers: dict | None = None,
+    timeout: int | None = None,
+    verify: bool = True,
+    stream: bool = False,
+    max_bytes: int = 10 * 1024 * 1024,
+):
     """HTTP GET with curl_cffi preferred, requests fallback.
 
     Using curl_cffi lets this script fetch sites that reject Python's default
     TLS fingerprint (notably mp.weixin.qq.com). Signature mirrors the subset of
     requests.get() this script actually uses.
     """
-    if curl_requests is not None:
-        return curl_requests.get(
-            url, headers=headers, timeout=timeout,
-            verify=verify, impersonate=_CURL_IMPERSONATE, stream=stream,
-        )
-    return requests.get(url, headers=headers, timeout=timeout,
-                        verify=verify, stream=stream)
+    del stream  # responses are always streamed internally so size limits apply
+    current_url = validate_public_http_url(url)
+    for _ in range(6):
+        if curl_requests is not None:
+            response = curl_requests.get(
+                current_url,
+                headers=headers,
+                timeout=timeout,
+                verify=verify,
+                impersonate=_CURL_IMPERSONATE,
+                stream=True,
+                allow_redirects=False,
+            )
+        else:
+            response = requests.get(
+                current_url,
+                headers=headers,
+                timeout=timeout,
+                verify=verify,
+                stream=True,
+                allow_redirects=False,
+            )
+
+        target = redirect_url(current_url, response)
+        if target:
+            response.close()
+            current_url = validate_public_http_url(target)
+            continue
+
+        try:
+            response.raise_for_status()
+            content = read_limited_response(response, max_bytes)
+        except Exception:
+            response.close()
+            raise
+        return BufferedResponse(response, content)
+    raise ValueError("Too many HTTP redirects")
 
 
 def _normalize_charset(charset: str | None) -> str:
@@ -181,6 +223,10 @@ except ImportError:
 CONFIG = {
     "output_dir": "./projects",
     "timeout": 30,
+    "max_page_bytes": 10 * 1024 * 1024,
+    "max_image_bytes": 15 * 1024 * 1024,
+    "max_total_image_bytes": 100 * 1024 * 1024,
+    "max_images": 50,
     "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     # Specific content identifiers often found in Chinese CMS (Gov/News)
     "content_selectors": [
@@ -227,8 +273,12 @@ def fetch_url(url: str) -> str:
     }
 
     try:
-        response = _http_get(url, headers=headers,
-                             timeout=CONFIG["timeout"], verify=False)
+        response = _http_get(
+            url,
+            headers=headers,
+            timeout=CONFIG["timeout"],
+            max_bytes=CONFIG["max_page_bytes"],
+        )
         response.raise_for_status()
 
         return _decode_response_text(response)
@@ -308,7 +358,7 @@ def download_and_rewrite_images(
     """Download images under the main content node and rewrite `src` paths."""
     if content_element is None:
         return 0
-    images = list(content_element.find_all("img"))
+    images = list(content_element.find_all("img"))[: CONFIG["max_images"]]
     if not images:
         return 0
 
@@ -316,6 +366,7 @@ def download_and_rewrite_images(
     downloaded = {}
     manifest_by_filename: dict[str, dict[str, object]] = {}
     saved = 0
+    total_image_bytes = 0
 
     for idx, img in enumerate(images):
         # Prefer lazy-load attributes — WeChat, Zhihu, and many CMSes keep the
@@ -345,13 +396,21 @@ def download_and_rewrite_images(
             saved_name = downloaded[abs_url]
         else:
             try:
+                remaining = CONFIG["max_total_image_bytes"] - total_image_bytes
+                if remaining <= 0:
+                    print("   [WARN] Total image download limit reached")
+                    break
                 resp = _http_get(
                     abs_url,
                     headers={"User-Agent": CONFIG["user_agent"]},
                     timeout=CONFIG["timeout"],
-                    verify=False,
+                    max_bytes=min(CONFIG["max_image_bytes"], remaining),
                 )
                 resp.raise_for_status()
+                response_type = resp.headers.get("Content-Type", "").lower()
+                if response_type and not response_type.startswith("image/"):
+                    raise ValueError(f"Unexpected image content type: {response_type}")
+                total_image_bytes += len(resp.content)
                 filename = build_image_filename(
                     abs_url, idx, resp.headers.get("Content-Type"))
 
@@ -697,8 +756,6 @@ def element_to_markdown(element: Tag | NavigableString | None) -> str:
 
 def simple_html_to_markdown_traversal(soup: Tag | BeautifulSoup | None) -> str:
     """Convert HTML content to Markdown using BeautifulSoup traversal."""
-    lines = []
-
     def traverse(node: Tag | NavigableString) -> str:
         if isinstance(node, NavigableString):
             text = str(node)
@@ -710,10 +767,6 @@ def simple_html_to_markdown_traversal(soup: Tag | BeautifulSoup | None) -> str:
 
         if node.name in ['script', 'style', 'comment', 'meta', 'link']:
             return ""
-
-        # Handle Block Elements
-        is_block = node.name in ['p', 'div', 'h1', 'h2', 'h3', 'h4',
-                                 'h5', 'h6', 'li', 'blockquote', 'pre', 'hr', 'table', 'tr']
 
         # Pre-processing
         prefix = ""
@@ -779,8 +832,6 @@ def simple_html_to_markdown_traversal(soup: Tag | BeautifulSoup | None) -> str:
             if rows:
                 cols_count = rows[0].count('|') - 1
                 if cols_count > 0:
-                    # rough approx
-                    sep = "| " + " | ".join(["---"] * int(cols_count/2)) + " |"
                     # Actually, the traverse of TR returns newline terminated strings.
                     # Let's just return what we gathered.
                     pass
@@ -900,8 +951,8 @@ def main() -> None:
     if args.file:
         if os.path.exists(args.file):
             with open(args.file, 'r', encoding='utf-8') as f:
-                lines = [l.strip() for l in f if l.strip()
-                         and not l.strip().startswith("#")]
+                lines = [line.strip() for line in f if line.strip()
+                         and not line.strip().startswith("#")]
                 targets.extend(lines)
         else:
             print(f"Error: File {args.file} not found")
@@ -933,7 +984,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    # Disable warnings for verify=False if needed, though often useful to see
-    import urllib3
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     main()

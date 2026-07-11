@@ -1,6 +1,6 @@
 # SVG Pipeline Tools
 
-> Architecture rationale (why each artifact / step exists, deletion impact, two-consumer relationship between `svg_finalize/` and native pptx conversion): see [docs/technical-design.md "Post-Processing Pipeline"](../../../../docs/technical-design.md#post-processing-pipeline).
+> Design note: each pipeline artifact is retained until both preview rendering and native PPTX conversion have consumed it; deleting an intermediate early can make the two outputs diverge.
 
 These tools cover post-processing, SVG validation, speaker notes, recorded narration, and PPTX export.
 

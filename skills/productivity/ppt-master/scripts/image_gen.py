@@ -695,7 +695,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--aspect_ratio", default="1:1", choices=ALL_ASPECT_RATIOS,
-        help=f"Aspect ratio. Default: 1:1."
+        help="Aspect ratio. Default: 1:1."
     )
     parser.add_argument(
         "--image_size", default="1K",

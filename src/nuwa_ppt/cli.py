@@ -33,9 +33,14 @@ def _find_repo_root(explicit: Optional[str]) -> Path:
       4. Walk up from this file (works when installed in editable mode).
       5. Fallback: CWD.
     """
-    candidates: List[Path] = []
     if explicit:
-        candidates.append(Path(explicit).expanduser().resolve())
+        # An explicit override is authoritative.  Returning it even when the
+        # skill directory is missing lets the caller report the actual typo or
+        # stale path instead of silently selecting an unrelated checkout from
+        # the current working directory.
+        return Path(explicit).expanduser().resolve()
+
+    candidates: List[Path] = []
     env = os.environ.get("NUWA_PPT_REPO")
     if env:
         candidates.append(Path(env).expanduser().resolve())
@@ -238,8 +243,11 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     s.add_argument(
         "extra",
-        nargs=argparse.REMAINDER,
-        help="Extra args forwarded verbatim to svg_to_pptx.py.",
+        nargs="*",
+        help=(
+            "Extra positional args forwarded to svg_to_pptx.py. Prefix "
+            "option-like passthrough args with '--'."
+        ),
     )
     s.set_defaults(func=cmd_build)
 
@@ -252,9 +260,28 @@ def _build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _parse_args(
+    parser: argparse.ArgumentParser, argv: Optional[List[str]]
+) -> argparse.Namespace:
+    """Parse CLI args while reserving ``--`` for build-script passthrough."""
+    raw = list(argv) if argv is not None else sys.argv[1:]
+    passthrough: List[str] = []
+    if "--" in raw:
+        separator = raw.index("--")
+        passthrough = raw[separator + 1 :]
+        raw = raw[:separator]
+
+    args = parser.parse_args(raw)
+    if passthrough:
+        if getattr(args, "command", None) != "build":
+            parser.error("arguments after '--' are only supported by the build command")
+        args.extra.extend(passthrough)
+    return args
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = _build_parser()
-    args = parser.parse_args(argv)
+    args = _parse_args(parser, argv)
     if not getattr(args, "command", None):
         parser.print_help()
         return 0

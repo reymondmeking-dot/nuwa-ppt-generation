@@ -39,11 +39,12 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 from console_encoding import configure_utf8_stdio  # noqa: E402
+from archive_security import validate_zip_path  # noqa: E402
 
-from pptx import Presentation
-from pptx.enum.action import PP_ACTION
-from pptx.enum.shapes import MSO_SHAPE_TYPE
-from pptx.oxml.ns import qn
+from pptx import Presentation  # noqa: E402
+from pptx.enum.action import PP_ACTION  # noqa: E402
+from pptx.enum.shapes import MSO_SHAPE_TYPE  # noqa: E402
+from pptx.oxml.ns import qn  # noqa: E402
 
 configure_utf8_stdio()
 
@@ -718,6 +719,7 @@ def convert_presentation_to_markdown(
     asset_dir = out_file.parent / f"{out_file.stem}_files"
     _reset_generated_asset_dir(asset_dir)
 
+    validate_zip_path(input_file)
     presentation = Presentation(str(input_file))
     lines = [
         f"# {input_file.stem}",

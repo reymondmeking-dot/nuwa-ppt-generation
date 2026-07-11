@@ -1,6 +1,6 @@
 # Image Tools
 
-> Architecture rationale (why provider-specific config keys instead of a generic `IMAGE_API_KEY`, why permissive license filter with strict-mode escape hatch, why external refs in dev but two divergent embedding strategies for delivery): see [docs/technical-design.md "Image Acquisition & Embedding"](../../../../docs/technical-design.md#image-acquisition--embedding).
+> Design note: image providers keep separate configuration keys, license filtering is permissive by default with a strict-mode escape hatch, and delivery embeds assets while development may retain external references for faster iteration.
 
 Image tools cover formula rendering, prompt-based AI generation, web image search, image inspection, and Gemini watermark removal.
 
@@ -70,10 +70,13 @@ Configuration sources:
 
 1. Current process environment variables
 2. First `.env` found in this order:
-   - Current working directory
    - Skill directory (e.g. `~/.agents/skills/ppt-master/.env`)
    - Clone repo root
    - `~/.ppt-master/.env`
+
+For security, an arbitrary current-working-directory `.env` is not loaded.
+Use `PPT_MASTER_ENV_FILE=/absolute/path/to/.env` for an explicit file, or set
+`PPT_MASTER_TRUST_CWD_ENV=1` only when the current checkout is trusted.
 
 The active backend must always be selected explicitly via `IMAGE_BACKEND`.
 

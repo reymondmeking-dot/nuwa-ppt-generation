@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nuwa-ppt-generation"
-version = "1.0.0"
+version = "1.0.1"
 description = "Agentic SVG-to-PPTX deck generation for high-end presentations."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -28,6 +28,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+dev = [
+    "pytest>=7",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "flask>=3.0,<4",
+]
 svg-render = ["cairosvg>=2.5", "svglib>=1.5.0", "reportlab>=4.0.0"]
 tts = ["edge-tts>=7.2.8"]
 full = [
@@ -41,6 +47,7 @@ full = [
     "openpyxl>=3.1.0",
     "requests>=2.31.0",
     "beautifulsoup4>=4.12.0",
+    "flask>=3.0,<4",
     "numpy>=1.20.0",
 ]
 
@@ -57,3 +64,14 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff.lint.per-file-ignores]
+"skills/productivity/ppt-master/scripts/finalize_svg.py" = ["E402"]
+"skills/productivity/ppt-master/scripts/gemini_watermark_remover.py" = ["E402"]
+"skills/productivity/ppt-master/scripts/image_backends/*.py" = ["E402"]
+"skills/productivity/ppt-master/scripts/image_sources/*.py" = ["E402"]
+"skills/productivity/ppt-master/scripts/rotate_images.py" = ["E402"]
+"skills/productivity/ppt-master/scripts/slice_images.py" = ["E402"]
+"skills/productivity/ppt-master/scripts/svg_finalize/align_embed_images.py" = ["E402"]
+"skills/productivity/ppt-master/scripts/svg_to_pptx/pptx_cli.py" = ["E402"]
+"skills/productivity/ppt-master/scripts/template_fill_pptx/cli.py" = ["E402"]

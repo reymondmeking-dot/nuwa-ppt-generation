@@ -42,6 +42,7 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 from console_encoding import configure_utf8_stdio  # noqa: E402
+from archive_security import open_safe_zip, safe_extractall  # noqa: E402
 from pptx_animations import TRANSITIONS, create_transition_xml  # noqa: E402
 from svg_to_pptx.pptx_builder import (  # noqa: E402
     _add_default_content_type,
@@ -214,8 +215,8 @@ def _zip_dir(source_dir: Path, output_path: Path) -> None:
 
 
 def _extract_pptx(source_pptx: Path, extract_dir: Path) -> None:
-    with zipfile.ZipFile(source_pptx, "r") as zf:
-        zf.extractall(extract_dir)
+    with open_safe_zip(source_pptx) as zf:
+        safe_extractall(zf, extract_dir)
 
 
 def _note_path(notes_dir: Path, index: int) -> Path | None:

@@ -114,7 +114,6 @@ def get_image_dimensions_from_base64(data_uri: str) -> tuple[int | None, int | N
         if not match:
             return None, None
         
-        img_format = match.group(1)
         b64_data = match.group(2)
         img_bytes = base64.b64decode(b64_data)
         
@@ -219,9 +218,6 @@ def fix_image_aspect_in_svg(svg_path: str, dry_run: bool = False, verbose: bool 
         Number of images fixed
     """
     svg_dir = os.path.dirname(os.path.abspath(svg_path))
-    
-    with open(svg_path, 'r', encoding='utf-8') as f:
-        content = f.read()
     
     # Register SVG namespaces
     namespaces = {

@@ -16,10 +16,18 @@ Dependencies:
 """
 
 import json
+import hmac
+import ipaddress
 import os
+import secrets
 import socket
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urlsplit
+
+
+LOCAL_TOKEN_HEADER = 'X-PPT-Master-Token'
+UNSAFE_METHODS = frozenset({'POST', 'PUT', 'PATCH', 'DELETE'})
 
 
 def find_free_port(preferred: int, host: str = '127.0.0.1', span: int = 50) -> int:
@@ -112,7 +120,7 @@ def read_lock(lock_file: Path) -> Optional[dict]:
         return None
 
 
-def claim_lock(lock_file: Path, port: int) -> Optional[dict]:
+def claim_lock(lock_file: Path, port: int, token: str | None = None) -> Optional[dict]:
     """Try to claim the per-project preview slot.
 
     Returns ``None`` on success. If another live process already holds the
@@ -122,10 +130,14 @@ def claim_lock(lock_file: Path, port: int) -> Optional[dict]:
     existing = read_lock(lock_file)
     if existing and process_alive(int(existing.get('pid', 0))):
         return existing
-    lock_file.write_text(
-        json.dumps({'pid': os.getpid(), 'port': port}),
-        encoding='utf-8',
-    )
+    payload = {'pid': os.getpid(), 'port': port}
+    if token:
+        payload['token'] = token
+    lock_file.write_text(json.dumps(payload), encoding='utf-8')
+    try:
+        lock_file.chmod(0o600)
+    except OSError:
+        pass
     return None
 
 
@@ -137,3 +149,82 @@ def release_lock(lock_file: Path) -> None:
             lock_file.unlink(missing_ok=True)
     except OSError:
         pass
+
+
+def new_local_session_token() -> str:
+    return secrets.token_urlsafe(32)
+
+
+def _loopback_host(host_header: str) -> bool:
+    try:
+        parsed = urlsplit(f'//{host_header}')
+        if parsed.username is not None or parsed.password is not None:
+            return False
+        hostname = parsed.hostname
+        _ = parsed.port
+    except ValueError:
+        return False
+    if not hostname:
+        return False
+    if hostname.lower() == 'localhost':
+        return True
+    try:
+        return ipaddress.ip_address(hostname.split('%', 1)[0]).is_loopback
+    except ValueError:
+        return False
+
+
+def install_local_request_guard(app, token: str | None = None) -> str:
+    """Protect a loopback Flask UI against DNS rebinding and cross-site writes."""
+    from flask import jsonify, request
+
+    session_token = token or new_local_session_token()
+    cookie_name = f'ppt_master_{session_token[:12]}'
+    app.config['LOCAL_SESSION_TOKEN'] = session_token
+    app.config['LOCAL_SESSION_COOKIE'] = cookie_name
+
+    @app.before_request
+    def _guard_local_request():
+        if not _loopback_host(request.host):
+            return jsonify({'error': 'invalid host'}), 403
+
+        origin = request.headers.get('Origin')
+        if origin:
+            try:
+                parsed_origin = urlsplit(origin)
+            except ValueError:
+                return jsonify({'error': 'invalid origin'}), 403
+            if (
+                parsed_origin.scheme.lower() != 'http'
+                or parsed_origin.netloc.lower() != request.host.lower()
+            ):
+                return jsonify({'error': 'invalid origin'}), 403
+
+        if request.method in UNSAFE_METHODS:
+            supplied = request.headers.get(LOCAL_TOKEN_HEADER) or request.cookies.get(
+                cookie_name
+            )
+            if not supplied or not hmac.compare_digest(supplied, session_token):
+                return jsonify({'error': 'invalid local session'}), 403
+        return None
+
+    @app.after_request
+    def _local_security_headers(response):
+        response.headers.setdefault('X-Content-Type-Options', 'nosniff')
+        response.headers.setdefault('X-Frame-Options', 'DENY')
+        response.headers.setdefault('Referrer-Policy', 'no-referrer')
+        response.headers.setdefault('Cache-Control', 'no-store')
+        return response
+
+    return session_token
+
+
+def set_local_session_cookie(app, response):
+    response.set_cookie(
+        app.config['LOCAL_SESSION_COOKIE'],
+        app.config['LOCAL_SESSION_TOKEN'],
+        httponly=True,
+        samesite='Strict',
+        secure=False,
+    )
+    return response

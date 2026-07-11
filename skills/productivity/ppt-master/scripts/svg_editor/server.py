@@ -61,11 +61,15 @@ if str(_ROOT_SCRIPTS_DIR) not in sys.path:
 
 from console_encoding import configure_utf8_stdio  # noqa: E402
 from server_common import (  # noqa: E402
+    LOCAL_TOKEN_HEADER,
     claim_lock as _claim_lock,
     find_free_port as _find_free_port,
+    install_local_request_guard as _install_local_request_guard,
+    new_local_session_token as _new_local_session_token,
     process_alive as _process_alive,
     read_lock as _read_lock,
     release_lock as _release_lock,
+    set_local_session_cookie as _set_local_session_cookie,
 )
 
 configure_utf8_stdio()
@@ -336,6 +340,7 @@ def create_app(
     idle_timeout: int = 900,
     live: bool = False,
     lock_file: Optional[Path] = None,
+    session_token: str | None = None,
 ) -> Flask:
     """Create and configure the Flask app for a given project directory."""
     project_path = Path(project_dir).resolve()
@@ -348,6 +353,7 @@ def create_app(
     app.config['SVG_DIR'] = svg_dir
     app.config['LIVE_MODE'] = live
     app.config['LOCK_FILE'] = lock_file
+    _install_local_request_guard(app, session_token)
 
     # In-memory annotation store: {filename: {element_id: annotation_text}}
     app.config['ANNOTATIONS'] = {}
@@ -401,7 +407,8 @@ def create_app(
 
     @app.route('/')
     def index():
-        return send_from_directory(app.static_folder, 'index.html')
+        response = send_from_directory(app.static_folder, 'index.html')
+        return _set_local_session_cookie(app, response)
 
     @app.route('/api/config')
     def get_config():
@@ -887,10 +894,13 @@ def _shutdown_existing(project_path: Path) -> int:
 
     if port:
         try:
+            headers = {'Content-Type': 'application/json'}
+            if existing.get('token'):
+                headers[LOCAL_TOKEN_HEADER] = str(existing['token'])
             req = urllib.request.Request(
                 f'http://127.0.0.1:{port}/api/shutdown',
                 data=b'{"reason": "cli-shutdown"}',
-                headers={'Content-Type': 'application/json'},
+                headers=headers,
                 method='POST',
             )
             urllib.request.urlopen(req, timeout=3)
@@ -1090,7 +1100,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     except OSError as exc:
         logger.error('cannot create live preview runtime directory: %s (%s)', runtime_dir, exc)
         return 1
-    existing = _claim_lock(lock_file, port)
+    session_token = _new_local_session_token()
+    existing = _claim_lock(lock_file, port, token=session_token)
     if existing:
         existing_pid = existing.get('pid', '?')
         existing_port = existing.get('port', '?')
@@ -1130,6 +1141,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         idle_timeout=idle_timeout,
         live=args.live,
         lock_file=lock_file,
+        session_token=session_token,
     )
 
     url = f'http://localhost:{port}'

@@ -20,7 +20,6 @@ This module is a pure library. The CLI entry point lives in
 
 from __future__ import annotations
 
-import json
 import posixpath
 import re
 import shutil
@@ -30,6 +29,8 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any
 from xml.etree import ElementTree as ET
+
+from archive_security import copy_zip_member, open_safe_zip
 
 
 NS = {
@@ -440,7 +441,7 @@ def write_summary(output_path: Path, manifest: dict[str, Any]) -> None:
 
 
 def build_manifest(pptx_path: Path, output_dir: Path) -> dict[str, Any]:
-    with zipfile.ZipFile(pptx_path, "r") as zf:
+    with open_safe_zip(pptx_path) as zf:
         presentation_root = load_xml_from_zip(zf, "ppt/presentation.xml")
         if presentation_root is None:
             raise RuntimeError("Invalid PPTX: missing ppt/presentation.xml")
@@ -513,8 +514,8 @@ def build_manifest(pptx_path: Path, output_dir: Path) -> dict[str, Any]:
             while destination.exists():
                 destination = asset_dir / f"{stem}_{counter}{suffix}"
                 counter += 1
-            with zf.open(info.filename) as src, open(destination, "wb") as dst:
-                shutil.copyfileobj(src, dst)
+            with open(destination, "wb") as dst:
+                copy_zip_member(zf, info, dst)
             copied_assets[info.filename] = destination.name
 
         slide_records: list[SlideRecord] = []

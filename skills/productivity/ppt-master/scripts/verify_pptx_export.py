@@ -14,8 +14,13 @@ Checks:
 """
 
 from __future__ import annotations
-import sys, zipfile, re, json
+
+import json
+import re
+import sys
 from pathlib import Path
+
+from archive_security import open_safe_zip
 
 def main():
     args = sys.argv[1:]
@@ -30,7 +35,7 @@ def main():
         print(f"ERROR: {pptx_path} not found")
         sys.exit(1)
 
-    with zipfile.ZipFile(pptx_path) as z:
+    with open_safe_zip(pptx_path) as z:
         names = z.namelist()
 
         ct = z.read("[Content_Types].xml").decode("utf-8", errors="replace")
